@@ -54,7 +54,7 @@ class Otakudesu(object):
                     _upload_date.append(str(f"{i.find('div',class_='epztipe').text} - {i.find('div',class_='newnime').text}"))
                 for i,result_title in enumerate(self.result_titles):
                     print(f'{cl.GREEN}➭ {cl.ENDC}{cl.WB}{i+1}.{cl.ENDC}{cl.TITLE} {result_title}{cl.ENDC} {cl.BLUE}<<{_upload_date[i]} >>{cl.ENDC}')
-                self.get_download_page(self.download_links[int(input(f'{cl.GREEN} Pilih Judul > {cl.ENDC}'))-1])
+                self.get_download_page(self.download_links[int(input(f'{cl.GREEN}【 Pilih 】 ➤ {cl.ENDC}'))-1])
         except RequestException as e:
             exit(e)
 
@@ -70,7 +70,7 @@ class Otakudesu(object):
                     self.download_links.append(i.find('a')['href'])
                 for i,result_title in enumerate(self.result_titles):
                     print(f'{cl.GREEN}【➣ 】{cl.ENDC} {cl.WB}{i+1}.{cl.ENDC} {cl.TITLE}{result_title}{cl.ENDC}')
-                self.get_download_page(self.download_links[int(input('\n{cl.GREEN}【 Pilih 】 ➤ {cl.ENDC}'))-1])
+                self.get_download_page(self.download_links[int(input(f'\n{cl.GREEN}【 Pilih 】 ➤ {cl.ENDC}'))-1])
             else:
                 print(cl.FAIL,'Opps hasil tidak ditemukan !!',cl.ENDC)
                 if (input(f'{cl.GREEN}【 Ulangi Pencarian ?[Y/t] 】 ➤ {cl.ENDC}')).lower() == 'y':
@@ -108,7 +108,7 @@ class Otakudesu(object):
             for i in _findData:
                 print(f"{cl.HEADER}\n\t\t\t➠ {i.find('strong').text} size : {i.find('i').text}\n{cl.ENDC}")
                 for x in i.findAll('a'):
-                    print('【▶ 】',x.text, ' : ',x['href'])
+                    print('【 ▶ 】',x.text, ' : ',x['href'])
             
         except RecursionError as e:
             exit(e)
@@ -133,7 +133,7 @@ def main():
     {cl.GREEN}[*]{cl.ENDC} {cl.WB} 2.{cl.ENDC} {cl.BLUE}Search Nime{cl.ENDC}
 
     """)
-    menu = input(f'{cl.GREEN}【Pilih Menu 】 ➤ {cl.ENDC}')
+    menu = input(f'{cl.GREEN}【 Pilih Menu 】 ➤ {cl.ENDC}')
 
     if menu == '1':
         Otakudesu('ongoing')
