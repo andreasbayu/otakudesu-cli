@@ -20,8 +20,8 @@ def print_bar(param='clear'):
     """
     print(__bar__)
 
-class Otakudesu(object):
-    def __init__(self, key):
+class Otakudesu():
+    def __init__(self, inp):
         self.url = ''  
         self.headers = {"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"}
         self.result_titles = []
@@ -29,16 +29,14 @@ class Otakudesu(object):
         self.page_links = []
         self.download_links = []
         self.download_link = []
-        # self.download_links_batch = ''
-        if key == 'ongoing':
+        if inp == '1':
             self.url = 'https://otakudesu.tv/ongoing-anime/'
             self.get_ongoing_data(self.url)
         else:
+            key = input("Masukkan Pencarian > ")
             self.url = (f"https://otakudesu.tv/?s={key.replace(' ','+')}&post_type=anime")
             self.get_search_data(self.url)
 
-    # tambahkan pilihan kembali tanpa meload ulang dengan isi list yang sudah ada
-    # tmbah pilih eps dengan list yang sudah ada
     
     def get_ongoing_data(self, url):
         try:
@@ -69,7 +67,8 @@ class Otakudesu(object):
                     self.result_titles.append(i.find('a').text)
                     self.download_links.append(i.find('a')['href'])
                 for i,result_title in enumerate(self.result_titles):
-                    print(f'{cl.GREEN}【➣ 】{cl.ENDC} {cl.WB}{i+1}.{cl.ENDC} {cl.TITLE}{result_title}{cl.ENDC}')
+                    print(f'{cl.GREEN}【 ➣ 】{cl.ENDC} {cl.WB}{i+1}.{cl.ENDC} {cl.TITLE}{result_title}{cl.ENDC}')
+                opsi_kembali()
                 self.get_download_page(self.download_links[int(input(f'\n{cl.GREEN}【 Pilih 】 ➤ {cl.ENDC}'))-1])
             else:
                 print(cl.FAIL,'Opps hasil tidak ditemukan !!',cl.ENDC)
@@ -81,6 +80,8 @@ class Otakudesu(object):
             exit(e)
 
     def get_download_page(self, url):
+        if len(self.download_links_title) > 0:
+            self.clear_data(ignore="none")
         try:
             print_bar()
             _getData = req.get(url, headers=self.headers).text
@@ -92,15 +93,15 @@ class Otakudesu(object):
                 self.page_links.append(i.find('a')['href'])
                 self.download_links_title.append(i.find('a').text)
             for i,eps in enumerate(self.download_links_title):
-                print(f'{cl.GREEN}➭{cl.ENDC} {cl.WB}{i+1}.{cl.ENDC} {cl.TITLE}{eps}{cl.ENDC} {cl.CYAN}<<{(_uploadDate[i]).text} >>{cl.ENDC}')
-            self.get_download_link(self.page_links[int(input(f'{cl.GREEN}【 Pilih Episode 】 ➤ {cl.ENDC}'))-1])
-
+                print(f'{cl.GREEN}➭{cl.ENDC} {cl.WB}{i+1}.{cl.ENDC} {cl.TITLE}{eps}{cl.ENDC} {cl.CYAN}<< {(_uploadDate[i]).text} >>{cl.ENDC}')
+            return self.get_download_link(self.page_links[int(input(f'{cl.GREEN}【 Pilih Episode 】 ➤ {cl.ENDC}'))-1], url)
         except RequestException as e:
             exit(e)
-    def get_download_link(self, url):
+
+    def get_download_link(self, udownload, pagelink):
         try:
             print_bar()
-            _getData = req.get(url, headers=self.headers).text
+            _getData = req.get(udownload, headers=self.headers).text
             _bs = BeautifulSoup(_getData, 'html.parser')
             _findData = _bs.find('div',class_='download').ul
             _findAData = _findData.findAll('a')
@@ -109,9 +110,36 @@ class Otakudesu(object):
                 print(f"{cl.HEADER}\n\t\t\t➠ {i.find('strong').text} size : {i.find('i').text}\n{cl.ENDC}")
                 for x in i.findAll('a'):
                     print('【 ▶ 】',x.text, ' : ',x['href'])
-            
+            while True:
+                opsi = get_opsi()
+                if opsi == '1':
+                    break
+                elif opsi == '2':
+                    return self.get_download_page(pagelink)
+                elif opsi == '3':
+                    exit()
+                else:
+                    print('Error !!!')
         except RecursionError as e:
             exit(e)
+
+    def get_all_download_link(self):
+        """ Test """
+        pass
+
+    def clear_data(self, ignore=''):
+        """ clear list ! belum tuntas"""
+        if ignore == 'none':
+            self.result_titles.clear()
+            self.download_link.clear()
+            self.download_links.clear()
+            self.download_links_title.clear()
+            self.page_links.clear()
+        elif ignore == 'links':
+            self.page_links.clear()
+            self.download_links.clear()
+
+
 class cl:
     HEADER = '\033[95m'
     BLUE = '\033[94m'
@@ -131,16 +159,18 @@ def main():
 
     {cl.GREEN}[*]{cl.ENDC} {cl.WB} 1.{cl.ENDC} {cl.BLUE}Ongoing{cl.ENDC}
     {cl.GREEN}[*]{cl.ENDC} {cl.WB} 2.{cl.ENDC} {cl.BLUE}Search Nime{cl.ENDC}
-
+    {cl.GREEN}[*]{cl.ENDC} {cl.WB} 3.{cl.ENDC} {cl.BLUE}Exit{cl.ENDC}
     """)
     menu = input(f'{cl.GREEN}【 Pilih Menu 】 ➤ {cl.ENDC}')
 
     if menu == '1':
-        Otakudesu('ongoing')
+        Otakudesu(menu)
         mulai_lagi()
     elif menu == '2':
-        Otakudesu(input(f'{cl.GREEN}【 Masukan Pencarian 】 ➤ {cl.ENDC}'))
+        Otakudesu(menu)
         mulai_lagi()
+    elif menu == '3':
+        exit()
     else:
         print(cl.FAIL,'\nOpps input tidak dikenali !!',cl.ENDC)
         mulai_lagi()
@@ -149,7 +179,30 @@ def mulai_lagi():
         if (input(f'{cl.GREEN}\n【 Mulai Lagi [Y/t] 】 ➤ {cl.ENDC}')).lower() == 'y':
             main()
         else:
-            exit(0)
+            exit()
+
+def opsi_kembali():
+    opsi = opsi = get_opsi()
+    if opsi == '1':
+        pass
+    elif opsi == '2':
+        main()
+    elif opsi == '3':
+        exit()
+    else:
+        print("Input tidak dikenal")
+        opsi_kembali()
+
+def get_opsi():
+    print("""
+Menu :
+1. Lanjut
+2. Kembali
+3. Keluar
+    """)
+    opsi = input('Pilih Menu > ')
+    return opsi
+
 
 if __name__ == "__main__":
     main()
